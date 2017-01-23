@@ -1,0 +1,14 @@
+Package: MFA
+Type: Package
+Title: Multiple Factor Analysis
+Version: 0.1.0
+Author: Sai Dulla, Cristián Garay, Matthew Rainey, Jingcheng Xu
+Maintainer: Jingcheng Xu <jingchengxu@outlook.com>
+Description: Multiple factor analysis and plot related to it.
+License: MIT
+LazyData: TRUE
+RoxygenNote: 5.0.1
+Imports: ggplot2
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -1,0 +1,134 @@
+---
+title: "Multiple Factor Analysis"
+author: "Jigncheng Xu, Matthew Rainey, Cristian Garay, and Sai Dulla"
+date: "November 29, 2016"
+output: ioslides_presentation
+---
+
+## Multiple Factor Analysis
+
+MFA is used when several sets of variables have been measured on the same set of observations.
+The number and/or nature of the variables used to describe the observations can vary from one 
+set of variables to the other, but the observations should be the same in all the data sets.
+
+The goals of MFA:
+
+- to analyze several data sets measured on the same observations
+- to provide a set of common factor scores i.e compromise factor scores
+- to project each of the original data sets onto the compromise to analyze
+  commonalities and discrepancies
+
+## The Steps of MFA: 
+
+- Step 1: Calculate PCA of each Data Table
+- Step 2: Creating the α Weight Vector
+- Step 3: Generalized PCA of X
+
+## Performing MFA with MFA package
+To perform MFA, use the `mfa` function:
+```{r}
+library(MFA)
+result <- mfa(wines, sets)
+result
+```
+
+## The MFA Object
+The result from `mfa` function is a list of eigenvalues, (compromise)
+factor scores, variable loadings, partial factor scores and weights.
+```{r}
+summary(result)
+```
+
+## Factor Scores
+Factor scores are the coordinates of the data in the new "dimensions".
+
+To visualise the factor scores, use `PlotFactorScores`
+function.
+
+## Factor Scores (continued)
+```{r}
+PlotFactorScores(result, group = wines$country, label = wines$ID)
+```
+
+## Loadings
+Variable loadings reflects the importance of that variable for this
+component and can also be used to plot maps of the variables that
+reflect their association.
+
+`PlotLoadings` plots the variable loadings.
+
+## Partial Factor Scores
+Partial factor scores are the positions "as seen by" each data set
+(sub-table). Partial factor scores is stored as a list of matrices in
+the mfa object.
+
+To visualise the partial factor scores, use `PlotPartialFactorScores`
+function (here we are plotting the second and third dimensions).
+
+## Partial Factor Scores (continued)
+```{r}
+PlotPartialFactorScores(result, 1, group = wines$country, label = wines$ID, dim = c(2, 3))
+```
+
+## Eigenvalues
+In MFA, the importance of a dimension is reflected by its eigenvalue
+which indicates how much of the total inertia of the data is explained by that component.
+
+To get a summary for the eigenvalues, use `EigSummary` function.
+
+## Eigenvalues (continued)
+```{r}
+EigSummary(result)
+```
+
+## Eigenvalues (continued)
+To visualise the eigenvalues, use `PlotEig`:
+```{r}
+PlotEig(result)
+```
+
+## Contributions
+- The contributions of an observation tells us how much each
+  observation contributes to a dimension.
+- The contributions of a variable tells us how much each variable
+  contributes to a dimension.
+- The contribution of a table to tells us how much all of the
+  variables in a given table contribute to a dimension.
+
+For these 3 types of contributions, use `ContribObs`, `ContribVar`,
+and `ContribTable` functions.
+
+## Contributions (continued)
+The following code computes the contribution of tables to the first 3 dimensions.
+```{r}
+ContribTable(result)[, 1:3]
+```
+
+## Coefficients for Between-Table Structure
+- To judge how similar two tables are, we can use the RV or Lg coefficients.
+- The RV coefficient represents the correlation between two tables.
+- The RV coefficient is always between 0 and 1.
+- The Lg coefficient reflects the MFA normalization between two tables.
+- For both coefficients, The larger the coefficient, the more similar the two tables are.
+
+We can calculate these with the `RV`, `RV_table`, `Lg`, and `Lg_table` functions
+
+## Coefficients (continued)
+The following code computes the Lg Coefficients between the first 4 tables.
+```{r}
+Lg_table(wines, sets)[1:4, 1:4]
+```
+
+## Bootstrap
+Bootstrap ratios, like t-statistics, can be used to find observations
+that reliably contribute to a given component. It is obtained by
+dividing each bootstrap mean by its standard deviation.
+
+To compute bootstrap ratios, use `BootstrapRatios` function.
+
+## Bootstrap (continued)
+The following code computes the bootstrap ratios for the first 7
+observations and first 2 components.
+```{r}
+BootstrapRatios(result)[1:7, 1:2]
+```

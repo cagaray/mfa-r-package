@@ -1,0 +1,34 @@
+---
+title: "Auxiliary Functions"
+author: "Matthew Rainey"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Auxiliary Functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+Outside of the functions directly related to the `mfa` function, we also have functions to calculate the RV and Lg coefficients between two tables.
+
+## RV Coefficients
+
+The RV coefficient between two tables can be interpreted as a non centered squared coefficient of correlation between two tables.  We use this to judge how similar the two tables are.  All RV coefficients are between 0 and 1, and the larger the RV coefficient, the more similar the two tables are.  To get the RV coefficient between two tables, use `RV`, and to get a matrix of RV coefficients, use `RV_table`.  Using the wine data as an example:
+```{r}
+library(MFA)
+table1 <- wines[,2:7]
+table2 <- wines[,8:13]
+RV(table1, table2)
+RV_table(wines, sets)[1:4,1:4]
+```
+In this case, all of the RV coefficients are over .9, so all of the tables are very similar.
+
+
+## Lg Coefficients
+
+The Lg coefficient between two tables serves a very similar purpose to the RV coefficient.  The main difference is that the Lg Coefficient reflects the MFA normilization, but is also used to judge the similarity between two tables.  To get the Lg coefficient between two tables, use `Lg`, and to get a matrix of RV coefficients, use `Lg_table`.  Using the wine data as an example:
+```{r}
+Lg(table1, table2)
+Lg_table(wines, sets)[1:4, 1:4]
+```
+Just as with the RV coefficients, we can see that the Lg coefficients are large, so the tables are similar.  The difference is that the diagonal values aren't one, so we judge the Lg coefficients by their size relative to the diagonal values.

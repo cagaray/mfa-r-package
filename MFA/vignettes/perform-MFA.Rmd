@@ -1,0 +1,139 @@
+---
+title: "Performing MFA"
+author: "Jingcheng Xu"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Performing MFA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+This vignette is about using this package to perform MFA (Multiple Factor Analysis), get summaries for the result, and plot the results.  MFA is used when several sets of variables have been measured on the same set of observations.
+
+## Performing MFA
+To perform MFA, use the `mfa` function:
+```{r}
+library(MFA)
+result <- mfa(wines, sets)
+```
+
+Here `wines` is a data set included in the package, and `sets` is a
+list of integer vectors representing the subtables in the `wines` data set.
+
+```{r}
+result
+summary(result)
+```
+
+`result` is an object of class `mfa` which is a list with several
+elements.  `eig` holds the eigenvalues, which measure the importance
+of each dimension (or component) by describing how much of the inertia
+of the data is explained by that dimension.  The `factor.scores` is a
+matrix that represents a compromise for the tables, and describe the
+observations.  The `partial.factor.scores` are the same, but only
+represent a single table.  The `loadings` holds a matrix that
+describes the individual variables.
+
+## Summaries of the eigenvalues
+
+The summaries of the eigenvalues will describe how much of the inertia
+each eigenvaue explains.  To get the summaries of eigenvalues of the
+result, we can use `EigSummary`:
+```{r}
+EigSummary(result)
+```
+
+## Plotting the results
+There are 4 functions that can be used to visualise the result.
+
+The `PlotEig` function gives a bar chart of the eigenvalues.
+
+The `PlotFactorScores` function plots the factor scores of the result
+from MFA. The argument `group` can be used to provide grouping
+(different colouring) on the plot.
+
+The `PlotPartialFactorScores` function is similar, only requiring one
+more argument to specify the particular table.
+
+The `PlotLoadings` function plots the variable loadings. Similar to
+the other two functions, `var.group` argument can be used to provide
+grouping among variables.
+
+```{r, fig.width=7, fig.height=7}
+PlotEig(result)
+PlotFactorScores(result, group = wines$country, label = wines$ID)
+PlotPartialFactorScores(result, 1, group = wines$country, label = wines$ID, dim = c(2, 3))
+PlotLoadings(result)
+```
+
+## Related functions
+### Contributions
+
+To understand how much each observation, variable and table
+contributes to each dimension, we compute the contribution for each.
+All of the contributions for a given dimension must add to one.
+
+With our wine data, each observation is a different wine, each table
+corresponds to an assessor and each variable is an assessors grade
+given to the wine on certain criteria.
+
+### Contribution of an Observation to a Dimension
+
+The contributions of an observation tells us how much each observation
+contributes to a dimension.  To get the Contributions of an
+Observation, use the `ContribObs` function.  The output given will
+have the columns represent dimensions and the rows represent
+observations.  Using the wine data as an example:
+```{r}
+ctr.obs <- ContribObs(result)
+ctr.obs[,1:3]
+```
+
+Since we have 12 wines (observations), we get a sense of how much an
+observation contributes by it's contributions size relative to 1/12.
+For example, the tenth wine contributes a lot to the second dimension,
+but very little to the first or third.
+
+### Contributions of a Variable to a Dimension
+
+The contributions of a variable tells us how much each variable
+contributes to a dimension.  To get the Contributions of a Variable,
+use the `ContribVar` function. The output has columns representing
+dimensions and rows representing variables.  With the wine data as an
+example:
+```{r}
+ctr.var <- ContribVar(result)
+ctr.var[1:8, 1:3]
+```
+
+We have 53 variables, so we get a sense of how much a variable
+contributes by it's contributions size relative to 1/53.  For example,
+the third variable contributes a lot to the second dimension but very
+little to the third.
+
+### Contributions of a Table to a Dimension
+
+The contribution of a table to tells us how much all of the variables
+in a given table contribute to a dimension.  To get the Contributions
+of a Table, use the `ContribTable` function. The output has columns
+representing dimensions and rows representing Tables.  With the wine
+data as an example:
+```{r}
+ctr.table <- ContribTable(result)
+ctr.table[, 1:3]
+```
+
+There are 10 assessors (tables), so we get a sense of how much a table
+contributes by it's contributions size relative to 1/10.  For example
+the fifth assessor contributes a lot to the third dimension, but only
+a small amount to the second.
+
+
+### Bootstrap
+The package also included a function `BootstrapRatios` for computing
+the bootstrap ratios, which can be used to find observations that
+reliably contribute to a given component. Here the ratios are computed
+by dividing each bootstrap mean by its standard deviation.
+```{r}
+BootstrapRatios(result, times = 2000)
+```
